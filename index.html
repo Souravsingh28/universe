@@ -1,16 +1,118 @@
 <!DOCTYPE html>
-<html lang="en" >
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Code By Sourav</title>
-  <link rel="stylesheet" href="./style.css">
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Couple Grievance Portal</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #fce3ec;
+      padding: 20px;
+      text-align: center;
+    }
+    .container {
+      max-width: 400px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 0 15px #eebfd4;
+    }
+    input, textarea, button {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background: #ff7aa2;
+      color: white;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .grievance {
+      text-align: left;
+      background: #fff0f5;
+      margin: 10px 0;
+      padding: 10px;
+      border-left: 4px solid #ff7aa2;
+      border-radius: 8px;
+    }
+  </style>
 </head>
 <body>
-<!-- partial:index.partial.html -->
-<div id="word"></div>
-<!-- partial -->
-  <script type="module" src="./script.js"></script>
 
+  <div class="container" id="loginBox">
+    <h2>💕 Couple Grievance Login 💕</h2>
+    <input type="text" id="username" placeholder="Your Username"/>
+    <input type="password" id="password" placeholder="Password"/>
+    <button onclick="login()">Login</button>
+  </div>
+
+  <div class="container" id="portalBox" style="display:none;">
+    <h2>Hello, <span id="userDisplay"></span> 😇</h2>
+    <h3>File a Grievance</h3>
+    <textarea id="grievanceText" rows="4" placeholder="Write your complaint sweetly..."></textarea>
+    <button onclick="submitGrievance()">Submit</button>
+
+    <h3>Grievances You Received</h3>
+    <div id="receivedList"></div>
+  </div>
+
+  <script>
+    const users = {
+      'poopie': '1234',
+      'swapna': '4321'
+    };
+
+    let currentUser = '';
+
+    function login() {
+      const user = document.getElementById('username').value.toLowerCase();
+      const pass = document.getElementById('password').value;
+      if (users[user] && users[user] === pass) {
+        currentUser = user;
+        document.getElementById('loginBox').style.display = 'none';
+        document.getElementById('portalBox').style.display = 'block';
+        document.getElementById('userDisplay').innerText = user.charAt(0).toUpperCase() + user.slice(1);
+        loadGrievances();
+      } else {
+        alert("Wrong username or password! Try again.");
+      }
+    }
+
+    function submitGrievance() {
+      const text = document.getElementById('grievanceText').value.trim();
+      if (!text) return alert("Please type a grievance!");
+      const target = currentUser === 'poopie' ? 'swapna' : 'poopie';
+      const existing = JSON.parse(localStorage.getItem(target + '_inbox') || "[]");
+      existing.push({ from: currentUser, text: text, time: new Date().toLocaleString() });
+      localStorage.setItem(target + '_inbox', JSON.stringify(existing));
+      document.getElementById('grievanceText').value = '';
+      alert("Grievance sent 💌");
+    }
+
+    function loadGrievances() {
+      const inbox = JSON.parse(localStorage.getItem(currentUser + '_inbox') || "[]");
+      const listDiv = document.getElementById('receivedList');
+      listDiv.innerHTML = '';
+      if (inbox.length === 0) {
+        listDiv.innerHTML = "<p>No grievances yet. You're doing great! 😄</p>";
+      } else {
+        inbox.forEach(item => {
+          listDiv.innerHTML += `
+            <div class="grievance">
+              <strong>From:</strong> ${item.from}<br>
+              <strong>Time:</strong> ${item.time}<br>
+              <p>${item.text}</p>
+            </div>
+          `;
+        });
+      }
+    }
+  </script>
 </body>
 </html>
